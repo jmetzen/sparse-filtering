@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-setup(name='Sparse Filtering',
+setup(name='sparse_filtering',
       version='1.0',
       description='Unsupervised feature learning based on sparse-filtering',
       author='Jan Hendrik Metzen',
