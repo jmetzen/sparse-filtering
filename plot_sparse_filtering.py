@@ -6,12 +6,12 @@ Sparse filtering on Olivetti faces
 Unsupervised learning of features for images from the Olivetti faces dataset
 using the sparse filtering algorithm. Linear features for sub-patches of the
 Olivetti faces are learned using the sparse filtering algorithm. This algorithm
-does not try to model the data's distribution but rather to learn features which
-are sparsely activated (in the sense that for each image, only a small subset of
-features is activated, that each feature is only activated on a small subset of
-the examples, and that features are roughly activated equally often). This
-sparsity is encoded as an objective function and L-BFGS is used to minimize this
-function.
+does not try to model the data's distribution but rather to learn features
+which are sparsely activated (in the sense that for each image, only a small
+subset of features is activated, that each feature is only activated on a small
+subset of the examples, and that features are roughly activated equally often).
+This sparsity is encoded as an objective function and L-BFGS is used to
+minimize this function.
 
 Plotted are the weight matrices of the features (corresponding roughly to gabor
 filters) and feature activation histograms.
@@ -47,7 +47,7 @@ faces_centered -= \
     faces_centered.mean(axis=1).reshape(n_samples, -1)  # local centering
 
 faces_centered = \
-    faces_centered.reshape(n_samples, 64, 64)  # Reshaping to 64*64 pixel images
+    faces_centered.reshape(n_samples, 64, 64)  # Reshaping to 64*64 pixel
 
 print("Dataset consists of %d faces" % n_samples)
 
@@ -55,19 +55,19 @@ print("Dataset consists of %d faces" % n_samples)
 # Extract n_patches patches randomly from each image
 patches = [extract_patches_2d(faces_centered[i], (patch_width, patch_width),
                               max_patches=n_patches, random_state=i)
-              for i in range(n_samples)]
+           for i in range(n_samples)]
 patches = np.array(patches).reshape(-1, patch_width * patch_width)
 
 ###############################################################################
-#
-estimator = SparseFiltering(n_features=n_features, maxfun=maxfun, iprint=iprint)
+estimator = \
+    SparseFiltering(n_features=n_features, maxfun=maxfun, iprint=iprint)
 features = estimator.fit_transform(patches)
 
 # #############################################################################
 # Plot weights of features
 pl.figure(0, figsize=(12, 10))
 pl.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.95,
-                  wspace=0.1, hspace=0.4)
+                   wspace=0.1, hspace=0.4)
 for i in range(estimator.w_.shape[0]):
     pl.subplot(int(np.sqrt(n_features)), int(np.sqrt(n_features)), i + 1)
     pl.pcolor(estimator.w_[i].reshape(patch_width, patch_width),
@@ -78,13 +78,13 @@ for i in range(estimator.w_.shape[0]):
 
 # Plot feature histogram
 pl.figure(1)
-pl.hist(features.T)
+pl.hist(features)
 pl.title("Feature activation histogram")
 
 # Plot Lifetime Sparsity histogram
 # Lifetime Sparsity: Each feature should only be active for a few examples
 pl.figure(2)
-activated_features = (features > 0.1).sum(1) / float(features.shape[1])
+activated_features = (features > 0.1).mean(0)
 pl.hist(activated_features)
 pl.xlabel("Feature activation ratio over all examples")
 pl.title("Lifetime Sparsity Histogram")
@@ -93,7 +93,7 @@ pl.title("Lifetime Sparsity Histogram")
 # Population Sparsity: Each example should be represented by only a few active
 #                      features
 pl.figure(3)
-activated_features = (features > 0.1).sum(0) / float(features.shape[0])
+activated_features = (features > 0.1).mean(1)
 pl.hist(activated_features)
 pl.xlabel("Ratio of active features in example")
 pl.title("Population Sparsity Histogram")
