@@ -75,6 +75,9 @@ class SparseFiltering(BaseEstimator):
         self.w_ = self._fit(X, **params)
         return self
 
+    def transform(self, X):
+        return self._transform(X)
+
     def fit_transform(self, X, y=None, **params):
         """Fit the model with X and apply the dimensionality reduction on X.
 
@@ -93,8 +96,10 @@ class SparseFiltering(BaseEstimator):
         return self._transform(X)
 
     def _fit(self, X):
-        X = X.T  # transpose data in order to be consistent with the Matlab code
-        X -= X.mean(0) # substract the mean from each image patch
+        # transpose data in order to be consistent with the Matlab code
+        X = np.array(X.T)
+        # substract the mean from each image patch
+        X -= X.mean(0)
 
         def objective_fct(w):
             # View 1d weight vector as a 2d matrix
@@ -102,7 +107,7 @@ class SparseFiltering(BaseEstimator):
 
             # Determine features resulting from weight vector
             F, Fs, L2Fs, NFs, L2Fn, Fhat = self._determine_features(X, W)
-            
+
             # Compute sparsity of each feature over all example, i.e., compute
             # its l1-norm; the objective function is the sum over these
             # sparsities
@@ -117,7 +122,8 @@ class SparseFiltering(BaseEstimator):
 
         def l2grad(X, Y, N, D):
             # Backpropagate through normalization
-            return D / N[:, None] - Y * (D * X).sum(1)[:, None] / (N ** 2)[:, None]
+            return D / N[:, None] - Y \
+                * (D * X).sum(1)[:, None] / (N ** 2)[:, None]
 
         # Choose initial weights randomly
         w0 = np.random.random(X.shape[0] * self.n_features) * 2 - 1
@@ -129,14 +135,16 @@ class SparseFiltering(BaseEstimator):
         return w.reshape(self.n_features, X.shape[0])
 
     def _transform(self, X):
-        X = X.T  # transpose data in order to be consistent with the Matlab code
-        X -= X.mean(0) # substract the mean from each image patch
+        # transpose data in order to be consistent with the Matlab code
+        X = np.array(X.T)
+        # substract the mean from each image patch
+        X -= X.mean(0)
 
         W = self.w_.reshape(self.n_features, X.shape[0])
 
         # Determine features resulting from weight vector
         # (ignore internals required for gradient)
-        _, _, _, _, _, Fhat = self._determine_features(X, W) 
+        _, _, _, _, _, Fhat = self._determine_features(X, W)
 
         return Fhat.T
 
