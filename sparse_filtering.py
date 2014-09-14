@@ -146,7 +146,7 @@ class SparseFiltering(BaseEstimator):
         # (ignore internals required for gradient)
         _, _, _, _, _, Fhat = self._determine_features(X, W)
 
-        return Fhat.T
+        return Fhat
 
     def _determine_features(self, X, W):
         # Compute unnormalized features by multiplying weight matrix with
